@@ -1,0 +1,14 @@
+before_script:
+  - eval $(ssh-agent -s)
+  - ssh-add <(echo "$SSH_PRIVATE_KEY")
+  - mkdir -p ~/.ssh
+  - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    
+deploy_staging:
+  stage: deploy
+  environment:
+    name: staging
+  script:
+    - ssh -oStrictHostKeyChecking=no $SSH_USERNAME@$SSH_SERVER_HOSTNAME "cd $SSH_WEBSERVER_HTDOCS && rm -rf $PROJECT_FOLDER && git clone $GIT_CLONE_URL && exit"
+  only:
+    - main
